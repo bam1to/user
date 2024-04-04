@@ -3,15 +3,13 @@
 namespace App\Controller;
 
 use App\Dto\Input\UserRegistrationDto;
-use App\Dto\Output\ResponseDto;
-use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Service\ViolationsCollector;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -25,7 +23,8 @@ class AuthController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        JWTTokenManagerInterface $jwtTokenManager
+        JWTTokenManagerInterface $jwtTokenManager,
+        ViolationsCollector $violationsCollector
     ): JsonResponse {
 
         /**
@@ -40,7 +39,10 @@ class AuthController extends AbstractController
         $violations = $validator->validate($userData);
 
         if ($violations->count() > 0) {
-            return $this->json($violations, Response::HTTP_BAD_REQUEST);
+            return $this->json(
+                $violationsCollector->collectViolations($violations),
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $user = $userRepository->registerUser($userData);
