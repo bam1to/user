@@ -34,4 +34,28 @@ class AuthControllerTest extends WebTestCase
         $this->assertArrayHasKey('token', $responseData);
         $this->assertNotEmpty($responseData['token']);
     }
+
+    public function testRegistrationValidationFail(): void
+    {
+        $client = static::createClient();
+
+        $requestData = [
+            'email' => 'invalidmail',
+            'password' => 'password'
+        ];
+
+        $client->request(
+            method: 'POST',
+            uri: '/user/auth/register',
+            parameters: [],
+            files: [],
+            server: ['Content-Type' => 'application/json'],
+            content: json_encode($requestData)
+        );
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertNotEmpty($responseData);
+    }
 }
