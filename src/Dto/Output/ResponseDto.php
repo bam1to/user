@@ -8,13 +8,13 @@ class ResponseDto
 
     private int $code;
 
-    private ?string $error;
+    private ?array $errors;
 
-    public function __construct(mixed $message, int $code = 200, ?string $error = null)
+    public function __construct(mixed $message, int $code = 200, ?array $errors = null)
     {
         $this->message = $message;
         $this->code = $code;
-        $this->error = $error;
+        $this->errors = $errors;
     }
 
     public function getMessage(): mixed
@@ -41,14 +41,22 @@ class ResponseDto
         return $this;
     }
 
-    public function getError(): ?string
+    public function getErrors(): ?array
     {
-        return $this->error;
+        return $this->errors;
     }
 
-    public function setError(?string $error): self
+    public function setErrors(?array $errors): self
     {
-        $this->error = $error;
+        $this->errors = $errors;
+
+        return $this;
+    }
+
+    public function addError(string $error): self
+    {
+        $this->errors[] = $error;
+
         return $this;
     }
 }

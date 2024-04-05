@@ -22,9 +22,11 @@ final class ResponseListener
         $responseContentArr = json_decode($responseContent, true);
         $content = new ResponseDto($responseContentArr, $response->getStatusCode());
 
+        // setting error response
         if (!$response->isSuccessful()) {
             $content->setMessage(null);
-            $content->setError($response->getContent());
+            $responseContentArr = array_unique($responseContentArr);
+            $content->setErrors($responseContentArr);
         }
 
         $response->setContent($this->serializer->serialize($content, 'json'));
