@@ -19,13 +19,19 @@ final class ResponseListener
         $response = $responseEvent->getResponse();
         $responseContent = $response->getContent();
 
+        if (!json_validate($responseContent)) {
+            return;
+        }
+
         $responseContentArr = json_decode($responseContent, true);
         $content = new ResponseDto($responseContentArr, $response->getStatusCode());
 
         // setting error response
         if (!$response->isSuccessful()) {
             $content->setMessage(null);
-            $responseContentArr = array_unique($responseContentArr);
+
+            // TODO: replace to another service
+            $responseContentArr = array_values(array_unique($responseContentArr));
             $content->setErrors($responseContentArr);
         }
 
