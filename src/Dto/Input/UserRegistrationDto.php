@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class UserRegistrationDto
 {
     #[Assert\NotNull()]
-    #[Assert\NotBlank()]
+    #[Assert\NotBlank(message: 'The email cannot be blank!')]
     #[Assert\Email(message: 'The email: {{ value }} is not valid')]
     private string $email;
 
