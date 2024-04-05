@@ -7,3 +7,5 @@ controllers:
     name_prefix: user_
     defaults:
         _format: json
+user_login:
+    path: /user/auth/login
