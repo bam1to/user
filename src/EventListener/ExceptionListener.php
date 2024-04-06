@@ -2,10 +2,9 @@
 
 namespace App\EventListener;
 
-use App\Dto\Output\ResponseDto;
+use App\Util\HttpResponseUtil;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -13,7 +12,8 @@ use Symfony\Component\HttpKernel\KernelInterface;
 final class ExceptionListener
 {
     public function __construct(
-        private KernelInterface $kernel
+        private KernelInterface $kernel,
+        private HttpResponseUtil $httpResponseUtil
     ) {
     }
 
@@ -33,9 +33,11 @@ final class ExceptionListener
     private function prepareResponse(\Throwable $exception): JsonResponse
     {
         $exceptionMessage = $exception->getMessage();
-        $exceptionCode = array_key_exists($exception->getCode(), Response::$statusTexts) ?
-            $exception->getCode() : JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
+        $exceptionCode = $exception->getCode();
+        $exceptionResponseCode = $this->httpResponseUtil->isValidHttpCode($exceptionCode)
+            ? $exceptionCode
+            : JsonResponse::HTTP_INTERNAL_SERVER_ERROR;
 
-        return new JsonResponse($exceptionMessage, $exceptionCode);
+        return new JsonResponse($exceptionMessage, $exceptionResponseCode);
     }
 }
