@@ -23,7 +23,7 @@ class ExceptionListenerTest extends TestCase
         $this->dispatcher = new EventDispatcher();
     }
 
-    public function testExceptionCorrectlyHandlesAndResponseJson()
+    public function testExceptionCorrectlyHandlesAndResponseJson(): void
     {
         $this->dispatcher->addListener(KernelEvents::EXCEPTION, [new ExceptionListener(
             $this->createMock(KernelInterface::class),

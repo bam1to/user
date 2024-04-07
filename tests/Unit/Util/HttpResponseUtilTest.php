@@ -17,7 +17,7 @@ class HttpResponseUtilTest extends KernelTestCase
     /**
      * @dataProvider validHttpCodes
      */
-    public function testIsValidResponseCodeReturnsTrueWhenHttpCodeIsValid(int $validHttpCode)
+    public function testIsValidResponseCodeReturnsTrueWhenHttpCodeIsValid(int $validHttpCode): void
     {
         $this->assertTrue($this->httpResponseUtil->isValidHttpCode($validHttpCode));
     }
@@ -25,12 +25,12 @@ class HttpResponseUtilTest extends KernelTestCase
     /**
      * @dataProvider invalidHttpCodes
      */
-    public function testIsValidResponseCodeReturnsFalseWhenHttpCodeIsInvalid(int $invalidHttpCode)
+    public function testIsValidResponseCodeReturnsFalseWhenHttpCodeIsInvalid(int $invalidHttpCode): void
     {
         $this->assertFalse($this->httpResponseUtil->isValidHttpCode($invalidHttpCode));
     }
 
-    private function validHttpCodes()
+    private function validHttpCodes(): \Generator
     {
         yield '10*' => [100];
         yield '20*' => [200];
@@ -39,7 +39,7 @@ class HttpResponseUtilTest extends KernelTestCase
         yield '50*' => [500];
     }
 
-    private function invalidHttpCodes()
+    private function invalidHttpCodes(): \Generator
     {
         yield '0' => [0];
         yield '10' => [10];

@@ -8,8 +8,16 @@ class ResponseDto
 
     private int $code;
 
+    /**
+     * @var string[]|null $errors
+     */
     private ?array $errors;
 
+    /**
+     * @param mixed $message
+     * @param int $code
+     * @param string[]|null $errors
+     */
     public function __construct(mixed $message, int $code = 200, ?array $errors = null)
     {
         $this->message = $message;
@@ -41,11 +49,17 @@ class ResponseDto
         return $this;
     }
 
+    /**
+     * @return string[]|null
+     */
     public function getErrors(): ?array
     {
         return $this->errors;
     }
 
+    /**
+     * @param string[]|null $errors
+     */
     public function setErrors(?array $errors): self
     {
         $this->errors = $errors;

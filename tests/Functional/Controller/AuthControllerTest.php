@@ -71,7 +71,10 @@ class AuthControllerTest extends WebTestCase
         yield 'Blank Email' => ['', 'The email cannot be blank!'];
     }
 
-    protected function makeRegistrationRequest(array $requestData)
+    /**
+     * @param mixed[] $requestData
+     */
+    protected function makeRegistrationRequest(array $requestData): void
     {
         $this->client->request(
             method: 'POST',

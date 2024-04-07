@@ -18,7 +18,7 @@ final class ResponseListener
     }
 
     #[AsEventListener(event: KernelEvents::RESPONSE)]
-    public function onKernelResponse(ResponseEvent $responseEvent)
+    public function onKernelResponse(ResponseEvent $responseEvent): void
     {
         $response = $responseEvent->getResponse();
 

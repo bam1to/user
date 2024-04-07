@@ -22,7 +22,7 @@ final class ExceptionListener
     {
         $exception = $event->getThrowable();
 
-        if ($this->kernel->getEnvironment('dev')) {
+        if ($this->kernel->getEnvironment() === 'dev') {
             dump($exception);
         }
 
