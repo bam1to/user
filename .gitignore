@@ -8,6 +8,7 @@
 /public/bundles/
 /var/
 /vendor/
+/coverage-report
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###
