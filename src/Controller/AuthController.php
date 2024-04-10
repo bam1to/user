@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Dto\Input\UserRegistrationDto;
 use App\Repository\UserRepository;
 use App\Service\ViolationsCollector;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,13 +22,8 @@ class AuthController extends AbstractController
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        JWTTokenManagerInterface $jwtTokenManager,
         ViolationsCollector $violationsCollector
     ): JsonResponse {
-
-        /**
-         * @var UserRegistrationDto $userData
-         */
         $userData = $serializer->deserialize(
             $request->getContent(),
             UserRegistrationDto::class,
@@ -47,10 +41,8 @@ class AuthController extends AbstractController
 
         $user = $userRepository->registerUser($userData);
 
-        $token = $jwtTokenManager->create($user);
-
         return $this->json([
-            'token' => $token
-        ]);
+            'token' => ''
+        ], Response::HTTP_CREATED);
     }
 }
