@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Dto\Input\UserRegistrationDto;
+use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\ViolationsCollector;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -10,13 +11,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/auth', methods: ['POST'])]
 class AuthController extends AbstractController
 {
-    #[Route('/register', name: 'user_auth_register')]
+    #[Route('/register', name: 'auth_register')]
     public function registration(
         Request $request,
         SerializerInterface $serializer,
@@ -39,10 +41,30 @@ class AuthController extends AbstractController
             );
         }
 
-        $user = $userRepository->registerUser($userData);
+        $userRepository->registerUser($userData);
+
+        $session = $request->getSession();
+        $session->start();
 
         return $this->json([
-            'token' => ''
+            'session_id' => $session->getId()
         ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/login', name: 'auth_login', methods: ['POST'])]
+    public function login(Request $request, #[CurrentUser] ?User $user): JsonResponse
+    {
+        if (!$user) {
+            return $this->json([
+                ''
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $session = $request->getSession();
+        $session->start();
+
+        return $this->json([
+            'session_id' => $session->getId()
+        ]);
     }
 }
