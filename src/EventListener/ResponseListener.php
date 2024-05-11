@@ -12,8 +12,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 final class ResponseListener
 {
     public function __construct(
-        private SerializerInterface $serializer,
-        private ArrayUtil $arrayUtil
+        private readonly SerializerInterface $serializer,
+        private readonly ArrayUtil $arrayUtil
     ) {
     }
 
@@ -31,15 +31,13 @@ final class ResponseListener
         $responseContentArr = (gettype($responseContent) === 'array')
             ? $responseContent
             : [$responseContent];
-        $content = new ResponseDto($responseContentArr, $response->getStatusCode());
 
-        // setting error response
-        if (!$response->isSuccessful()) {
-            $content->setMessage(null);
-
-            $responseContentArr = $this->arrayUtil->uniq($responseContentArr);
-            $content->setErrors($responseContentArr);
-        }
+        $content = $response->isSuccessful() ?
+            new ResponseDto($responseContentArr, $response->getStatusCode()) :
+            new ResponseDto(
+                code: $response->getStatusCode(),
+                errors: $this->arrayUtil->uniq($responseContentArr)
+            );
 
         $response->setContent($this->serializer->serialize($content, 'json'));
     }
