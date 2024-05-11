@@ -56,7 +56,7 @@ class AuthController extends AbstractController
     {
         if (!$user) {
             return $this->json([
-                ''
+                ['Wrong email or password']
             ], Response::HTTP_BAD_REQUEST);
         }
 
@@ -66,5 +66,11 @@ class AuthController extends AbstractController
         return $this->json([
             'session_id' => $session->getId()
         ]);
+    }
+
+    #[Route('/logout', name: 'auth_logout', methods: ['POST'])]
+    public function logout(): JsonResponse
+    {
+        return $this->json('');
     }
 }
