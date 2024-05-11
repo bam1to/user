@@ -2,6 +2,9 @@
 
 namespace App\Tests\Integration\Controller;
 
+use App\DataFixtures\AppFixtures;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,10 +15,12 @@ class AuthControllerTest extends WebTestCase
     use ResetDatabase;
 
     private ?KernelBrowser $client = null;
+    private ?AbstractDatabaseTool $databaseTool = null;
 
     protected function setUp(): void
     {
         $this->client = static::createClient();
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     public function testRegistrationSuccess(): void
@@ -30,18 +35,13 @@ class AuthControllerTest extends WebTestCase
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
         // check response status code set well
-        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-
-        // check response structure is correct
-        $this->assertArrayHasKey('errors', $responseData);
-        $this->assertArrayHasKey('message', $responseData);
-        $this->assertArrayHasKey('code', $responseData);
+        $this->assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
 
         // check response data is correct
         $this->assertNull($responseData['errors']);
-        $this->assertEquals(Response::HTTP_OK, $responseData['code']);
-        $this->assertArrayHasKey('token', $responseData['message']);
-        $this->assertNotEmpty($responseData['message']['token']);
+        $this->assertEquals(Response::HTTP_CREATED, $responseData['code']);
+        $this->assertArrayHasKey('session_id', $responseData['message']);
+        $this->assertNotEmpty($responseData['message']['session_id']);
     }
 
     /**
@@ -63,6 +63,36 @@ class AuthControllerTest extends WebTestCase
         $this->assertNotEmpty($responseData);
         $this->assertArrayHasKey('errors', $responseData, 'Response hasn\'t an error key');
         $this->assertContains($expectedError, $responseData['errors']);
+    }
+
+    public function testLoginSuccess()
+    {
+        $this->databaseTool->loadFixtures([AppFixtures::class]);
+
+        $requestData = [
+            'email' => 'w1@test.com',
+            'password' => 'qwe123'
+        ];
+
+        $this->client->request(
+            method: 'POST',
+            uri: '/user/auth/login',
+            parameters: [],
+            files: [],
+            server: ['Content-Type' => 'application/json'],
+            content: json_encode($requestData)
+        );
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        // check response status code set well
+        $this->assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+
+        // check response data is correct
+        $this->assertNull($responseData['errors']);
+        $this->assertEquals(Response::HTTP_OK, $responseData['code']);
+        $this->assertArrayHasKey('session_id', $responseData['message']);
+        $this->assertNotEmpty($responseData['message']['session_id']);
     }
 
     private function invalidEmailProvider(): \Generator

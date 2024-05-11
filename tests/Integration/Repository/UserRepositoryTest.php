@@ -2,9 +2,11 @@
 
 namespace App\Tests\Integration\Repository;
 
+use App\DataFixtures\AppFixtures;
 use App\Dto\Input\UserRegistrationDto;
-use App\Entity\User;
 use App\Repository\UserRepository;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
@@ -14,11 +16,13 @@ class UserRepositoryTest extends KernelTestCase
     use ResetDatabase, Factories;
 
     private UserRepository $userRepository;
+    private AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
         self::bootKernel();
         $this->userRepository = $this->getContainer()->get(UserRepository::class);
+        $this->databaseTool = $this->getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     public function testUserRegistrationSuccessful(): void
@@ -36,5 +40,10 @@ class UserRepositoryTest extends KernelTestCase
             $insertedUser->getId(),
             $this->userRepository->findOneBy(['id' => $insertedUser->getId()])->getId()
         );
+    }
+
+    public function testUserRegistrationUniqEmailValidationFailed(): void
+    {
+        $this->databaseTool->loadFixtures([AppFixtures::class]);
     }
 }
