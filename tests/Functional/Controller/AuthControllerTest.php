@@ -30,7 +30,7 @@ class AuthControllerTest extends WebTestCase
             'password' => 'password'
         ];
 
-        $this->makeRegistrationRequest($requestData);
+        $this->makePostRequest($requestData, '/user/auth/register');
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
@@ -54,7 +54,7 @@ class AuthControllerTest extends WebTestCase
             'password' => 'password'
         ];
 
-        $this->makeRegistrationRequest($requestData);
+        $this->makePostRequest($requestData, '/user/auth/register');
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
@@ -65,7 +65,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertContains($expectedError, $responseData['errors']);
     }
 
-    public function testLoginSuccess()
+    public function testUserSuccessfullyLoggedIn()
     {
         $this->databaseTool->loadFixtures([AppFixtures::class]);
 
@@ -74,14 +74,7 @@ class AuthControllerTest extends WebTestCase
             'password' => 'qwe123'
         ];
 
-        $this->client->request(
-            method: 'POST',
-            uri: '/user/auth/login',
-            parameters: [],
-            files: [],
-            server: ['Content-Type' => 'application/json'],
-            content: json_encode($requestData)
-        );
+        $this->makePostRequest($requestData, '/user/auth/login');
 
         $responseData = json_decode($this->client->getResponse()->getContent(), true);
 
@@ -104,13 +97,11 @@ class AuthControllerTest extends WebTestCase
     /**
      * @param mixed[] $requestData
      */
-    protected function makeRegistrationRequest(array $requestData): void
+    private function makePostRequest(array $requestData, string $uri): void
     {
         $this->client->request(
             method: 'POST',
-            uri: '/user/auth/register',
-            parameters: [],
-            files: [],
+            uri: $uri,
             server: ['Content-Type' => 'application/json'],
             content: json_encode($requestData)
         );
