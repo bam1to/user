@@ -52,14 +52,8 @@ class AuthController extends AbstractController
     }
 
     #[Route('/login', name: 'auth_login', methods: ['POST'])]
-    public function login(Request $request, #[CurrentUser] ?User $user): JsonResponse
+    public function login(Request $request): JsonResponse
     {
-        if (!$user) {
-            return $this->json([
-                ['Wrong email or password']
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
         $session = $request->getSession();
         $session->start();
 

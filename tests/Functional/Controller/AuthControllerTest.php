@@ -65,7 +65,7 @@ class AuthControllerTest extends WebTestCase
         $this->assertContains($expectedError, $responseData['errors']);
     }
 
-    public function testUserSuccessfullyLoggedIn()
+    public function testUserSuccessfullyLoggedIn(): void
     {
         $this->databaseTool->loadFixtures([AppFixtures::class]);
 
@@ -86,6 +86,26 @@ class AuthControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $responseData['code']);
         $this->assertArrayHasKey('session_id', $responseData['message']);
         $this->assertNotEmpty($responseData['message']['session_id']);
+    }
+
+    public function testBadCredentialsWhileLogin(): void
+    {
+        $this->databaseTool->loadFixtures([AppFixtures::class]);
+
+        $requestData = [
+            'email' => 'badcredentials@test.com',
+            'password' => 'wrongPassword'
+        ];
+
+        $this->makePostRequest($requestData, '/user/auth/login');
+
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
+
+        $this->assertNotEmpty($responseData);
+        $this->assertArrayHasKey('errors', $responseData, 'Response hasn\'t an error key');
+        $this->assertContains('Invalid credentials.', $responseData['errors']);
     }
 
     private function invalidEmailProvider(): \Generator
