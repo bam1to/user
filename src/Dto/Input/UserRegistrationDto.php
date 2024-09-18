@@ -17,7 +17,7 @@ class UserRegistrationDto
 
     private ?string $phone = null;
 
-    public function  getEmail(): string
+    public function getEmail(): string
     {
         return $this->email;
     }

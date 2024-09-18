@@ -21,9 +21,6 @@ security:
                 check_path: 'user_auth_login'
                 username_path: 'email'
                 password_path: 'password'
-            logout:
-                path: 'user_auth_logout'
-                invalidate_session: true
 
 
     # Easy way to control access for large sections of your site

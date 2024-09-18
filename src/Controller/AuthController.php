@@ -4,19 +4,22 @@ namespace App\Controller;
 
 use App\Dto\Input\UserRegistrationDto;
 use App\Repository\UserRepository;
+use App\Service\RedisSessionHandler;
 use App\Service\ViolationsCollector;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/auth', methods: ['POST'])]
+#[Route('/auth', name: 'auth_', methods: ['POST'])]
 class AuthController extends AbstractController
 {
-    #[Route('/register', name: 'auth_register')]
+
+    #[Route('/register', name: 'register')]
     public function registration(
         Request $request,
         SerializerInterface $serializer,
@@ -49,7 +52,7 @@ class AuthController extends AbstractController
         ], Response::HTTP_CREATED);
     }
 
-    #[Route('/login', name: 'auth_login', methods: ['POST'])]
+    #[Route('/login', name: 'login', methods: ['POST'])]
     public function login(Request $request): JsonResponse
     {
         $session = $request->getSession();
@@ -60,9 +63,15 @@ class AuthController extends AbstractController
         ]);
     }
 
-    #[Route('/logout', name: 'auth_logout', methods: ['POST'])]
-    public function logout(): JsonResponse
+    #[Route('/logout', name: 'logout', methods: ['POST'])]
+    public function logout(Request $request, RedisSessionHandler $redisSessionHandler, DecoderInterface $serializer): JsonResponse
     {
-        return $this->json('');
+        $sessionId = $serializer->decode($request->getContent(), 'json')['session_id'];
+
+        $hasDestroyed = $redisSessionHandler->destroy($sessionId);
+
+        return $this->json([
+            'has_destroyed' => $hasDestroyed
+        ]);
     }
 }
