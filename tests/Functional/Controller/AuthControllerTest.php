@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Integration\Controller;
+namespace App\Tests\Functional\Controller;
 
 use App\DataFixtures\AppFixtures;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
